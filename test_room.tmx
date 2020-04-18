@@ -1,19 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="1.3.4" orientation="orthogonal" renderorder="right-down" width="16" height="8" tilewidth="16" tileheight="16" infinite="0" nextlayerid="2" nextobjectid="1">
+<map version="1.2" tiledversion="1.3.4" orientation="orthogonal" renderorder="right-down" width="16" height="8" tilewidth="16" tileheight="16" infinite="0" nextlayerid="3" nextobjectid="1">
  <editorsettings>
   <export target="test_room.lua" format="lua"/>
  </editorsettings>
  <tileset firstgid="1" source="tileset.tsx"/>
- <layer id="1" name="Tile Layer 1" width="16" height="8">
+ <layer id="1" name="collide layer" width="16" height="8">
   <data encoding="csv">
-2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,
-2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,
-2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,
-2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,
-2,0,3,0,0,0,0,3,0,0,0,0,0,3,0,2,
-2,0,3,0,0,0,0,3,0,0,0,0,0,3,0,2,
-2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2
+13,14,14,14,14,14,14,14,14,14,14,14,14,14,14,15,
+45,0,0,0,0,0,0,0,0,0,0,0,0,0,0,47,
+45,0,0,0,0,0,0,0,0,0,0,0,0,0,0,47,
+45,0,0,0,0,0,0,0,0,0,0,0,0,0,0,47,
+45,0,0,0,0,0,0,0,0,0,0,0,0,0,0,47,
+45,0,130,0,0,0,0,130,0,0,0,0,0,130,0,47,
+45,0,130,0,0,0,0,130,0,0,0,0,0,130,0,47,
+14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14
+</data>
+ </layer>
+ <layer id="2" name="no collide layer" width="16" height="8">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,517,0,0,0,0,0,0,0,519,0,0,0,
+0,0,0,0,549,0,0,0,0,0,518,0,551,0,0,0,
+0,0,0,0,549,0,0,0,0,0,551,0,551,0,0,0,
+0,0,0,0,549,0,0,0,0,0,551,0,551,0,0,0,
+0,0,0,0,549,0,0,0,0,0,551,0,551,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
 </map>
