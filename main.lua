@@ -14,14 +14,13 @@ function love.load()
 	TILESIZE = 16
 	
 	world = bump.newWorld(16)
-	map = sti("test_room.lua")
-	test_room = require("test_room")
+	map = sti("room/heaven.lua")
+	test_room = require("room/test_room")
+	heaven_room = require("room/heaven")
 	
 	worldTick = 0
 	gravity = 0.8
 	
-	playerX = 32
-	playerY = 32
 	playerSpeed = 1.5
 
 	playerTileX = 0
@@ -45,11 +44,15 @@ function love.load()
 		boundingBox = {x=32,y=32,w=15,h=32},
 		
 		animFrames = {},
-		grounded = false
+		grounded = false,
+		
+		xvel = 0,
+		yvel = 0,
+		maxVel = 1
 	}
 	cam_zoom = 3
 	
-	init_room(test_room)
+	init_room(heaven_room)
 end
 
 function init_room(room)
@@ -80,36 +83,46 @@ function love.update(dt)
 	worldTick = worldTick + 1
 	map:update(dt) -- update map and everything and yeah
 	
-	cam_x = playerX -- update camera
-	cam_y = playerY
+	cam_x = player.x -- update camera
+	cam_y = player.y
 	
-	if love.keyboard.isDown("left") then -- update player pos
-		player.boundingBox.x, player.boundingBox.y, cols, lenth = world:move(player.boundingBox, playerX - playerSpeed, playerY)
+	if love.keyboard.isDown("x") then
+		player.maxVel = 3
+	else
+		player.maxVel = 1
 	end
-    if love.keyboard.isDown("right") then
-		player.boundingBox.x, player.boundingBox.y, cols, lenth = world:move(player.boundingBox, playerX + playerSpeed, playerY)
+	
+	if love.keyboard.isDown("left") then -- update player vel
+		if (player.xvel > -player.maxVel) then
+			player.xvel = player.xvel - 0.1
+		end
+		
+    elseif love.keyboard.isDown("right") then
+		if (player.xvel < player.maxVel) then
+			player.xvel = player.xvel + 0.1
+		end
+	else
+		player.xvel = player.xvel / 1.1
     end
 	if love.keyboard.isDown("down") then 
-
 	end
 	if love.keyboard.isDown("up") then 
-	
 	end
 	
-	playerX = player.boundingBox.x
+	player.boundingBox.x, player.boundingBox.y, cols, lenth = world:move(player.boundingBox, player.x + player.xvel, player.y + player.yvel)
+	player.x = player.boundingBox.x
 	
-	player.boundingBox.x, player.boundingBox.y, cols, lenth = world:move(player.boundingBox, playerX, playerY + gravity)
-	
+	player.boundingBox.x, player.boundingBox.y, cols, lenth = world:move(player.boundingBox, player.x, player.y + gravity)
 	if love.keyboard.isDown("z") then
-		player.boundingBox.x, player.boundingBox.y, cols, lenth = world:move(player.boundingBox, playerX, playerY - playerSpeed)
+		player.boundingBox.x, player.boundingBox.y, cols, lenth = world:move(player.boundingBox, player.x, player.y - playerSpeed)
     end
 	
-	playerY = player.boundingBox.y
+	player.y = player.boundingBox.y
 	
-	playerTileX = math.floor(playerX / TILESIZE) -- update tile pos
-	playerTileY = math.floor(playerY / TILESIZE)
-	playerTileX2 = math.ceil(playerX / TILESIZE) -- update tile pos
-	playerTileY2 = math.ceil(playerY / TILESIZE)
+	playerTileX = math.floor(player.x / TILESIZE) -- update tile pos
+	playerTileY = math.floor(player.y / TILESIZE)
+	playerTileX2 = math.ceil(player.x / TILESIZE) -- update tile pos
+	playerTileY2 = math.ceil(player.y / TILESIZE)
 	
     if (worldTick % 8 == 0) then
 		playerAnimFrame = playerAnimFrame + 1
@@ -122,24 +135,24 @@ end
 function love.draw()
 	love.graphics.setColor(1, 1, 1)
 	
-	mapRenderX = (love.graphics.getWidth() / 2 / cam_zoom) - playerX
-	mapRenderY = (love.graphics.getHeight() / 2 / cam_zoom) - playerY
+	mapRenderX = (love.graphics.getWidth() / 2 / cam_zoom) - player.x
+	mapRenderY = (love.graphics.getHeight() / 2 / cam_zoom) - player.y
 	map:draw(mapRenderX,mapRenderY,cam_zoom,cam_zoom) -- tx, ty, sx, sy
 	
-	love.graphics.draw(player_idle_frames[playerAnimFrame], tra_x(playerX), tra_y(playerY), 0 , cam_zoom, cam_zoom)
+	love.graphics.draw(player_idle_frames[playerAnimFrame], tra_x(player.x), tra_y(player.y), 0 , cam_zoom, cam_zoom)
 
-	for i = 1, test_room.layers[1].width * test_room.layers[1].height do
+	-- for i = 1, test_room.layers[1].width * test_room.layers[1].height do
 		
-		local b = tileHitboxes[i]
-		if b ~= nil then
-			love.graphics.setColor(1,0,0)
-			love.graphics.rectangle("line", tra_x(b.x), tra_y(b.y), b.w * cam_zoom, b.h * cam_zoom)
-		end
-		b = player.boundingBox
-		love.graphics.setColor(0,1,0)
-		love.graphics.rectangle("line", tra_x(b.x), tra_y(b.y), b.w * cam_zoom, b.h * cam_zoom)
+		-- local b = tileHitboxes[i]
+		-- if b ~= nil then
+			-- love.graphics.setColor(1,0,0)
+			-- love.graphics.rectangle("line", tra_x(b.x), tra_y(b.y), b.w * cam_zoom, b.h * cam_zoom)
+		-- end
+		-- b = player.boundingBox
+		-- love.graphics.setColor(0,1,0)
+		-- love.graphics.rectangle("line", tra_x(b.x), tra_y(b.y), b.w * cam_zoom, b.h * cam_zoom)
 		
-	end
+	-- end
 	
 	love.graphics.print(playerTileX, 0, 0)
 	love.graphics.print(playerTileY, 0, 10)
