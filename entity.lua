@@ -12,3 +12,23 @@ function entity:new(o)
 	self.__index = self
 	return o
 end
+
+player = entity:new()
+
+player = {
+	x = 32,
+	y = 32,
+	width = 16,
+	height = 32,
+	speed = 1,
+	tileX = 0,
+	tileY = 0,
+	boundingBox = {x=32,y=32,w=15,h=32},
+	
+	animFrames = {},
+	grounded = false,
+	
+	xvel = 0,
+	yvel = 0,
+	maxVel = 1
+}

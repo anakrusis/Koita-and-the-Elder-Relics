@@ -14,9 +14,10 @@ function love.load()
 	TILESIZE = 16
 	
 	world = bump.newWorld(16)
-	map = sti("room/heaven.lua")
-	test_room = require("room/test_room")
-	heaven_room = require("room/heaven")
+
+	ROOM_TEST = "room/test_room"
+	ROOM_HEAVEN = "room/heaven"
+	ROOM_TOWN = "room/town"
 	
 	worldTick = 0
 	gravity = 0.8
@@ -32,30 +33,16 @@ function love.load()
 		player_idle_frames[i] = love.graphics.newImage("sprite/player_idle" .. i .. ".png")
 	end
 
-	
-	player = {
-		x = 32,
-		y = 32,
-		width = 16,
-		height = 32,
-		speed = 1,
-		tileX = 0,
-		tileY = 0,
-		boundingBox = {x=32,y=32,w=15,h=32},
-		
-		animFrames = {},
-		grounded = false,
-		
-		xvel = 0,
-		yvel = 0,
-		maxVel = 1
-	}
 	cam_zoom = 3
 	
-	init_room(heaven_room)
+	init_room(ROOM_TOWN)
 end
 
-function init_room(room)
+function init_room(room_path)
+
+	map = sti(room_path .. ".lua")
+	room = require(room_path)
+
 	tileHitboxes = {}
 	entityHitboxes = {}
 	
@@ -76,6 +63,7 @@ function init_room(room)
 		end
 	end
 	world:add(player.boundingBox, player.boundingBox.x, player.boundingBox.y, player.boundingBox.w, player.boundingBox.h)
+
 end
 
 function love.update(dt)
