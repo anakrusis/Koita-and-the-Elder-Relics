@@ -1,27 +1,9 @@
 entity = {
 	x = 0,
 	y = 0,
-	tileX = 0, 
-	tileY = 0,
-	
-	animFrames = {}
-}
-function entity:new(o)
-	o = o or {}
-	setmetatable(o, self)
-	self.__index = self
-	return o
-end
-
-player = entity:new()
-
-player = {
-	x = 32,
-	y = 32,
 	width = 16,
-	height = 32,
-	speed = 1,
-	tileX = 0,
+	height = 16,
+	tileX = 0, 
 	tileY = 0,
 	boundingBox = {x=32,y=32,w=15,h=32},
 	
@@ -31,4 +13,43 @@ player = {
 	xvel = 0,
 	yvel = 0,
 	maxVel = 1
+}
+function entity:new(o)
+	o = o or {}
+	setmetatable(o, self)
+	self.__index = self
+	return o
+end
+
+entityPlayer = entity:new()
+
+player = entityPlayer:new{
+	x = 32,
+	y = 32,
+	width = 16,
+	height = 32,
+	speed = 1,
+
+	attack = 5,
+	defense = 5,
+	speed = 5,
+	toilet = 5,
+	magic = 5,
+	resistance = 5,
+	hp = 5,
+	
+	doorTimer = 0
+}
+
+entityCharacter = entity:new{
+	width = 16,
+	height = 32,
+	dialog = {} -- what the character says
+}
+
+entityDoor = entity:new{
+	width = 16,
+	height = 32,
+	grounded = true,
+	roomDestination = 1
 }
