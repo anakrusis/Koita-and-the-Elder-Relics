@@ -8,6 +8,7 @@ entity = {
 	boundingBox = {x=32,y=32,w=15,h=32},
 	
 	animFrames = {},
+	currentAnimFrame = 1,
 	grounded = false,
 	
 	xvel = 0,
@@ -25,7 +26,8 @@ entityPlayer = entity:new()
 
 player = entityPlayer:new{
 	x = 32,
-	y = 32,
+	y = 700,
+	boundingBox = {x=32,y=700,w=15,h=32},
 	width = 16,
 	height = 32,
 	speed = 1,
@@ -41,11 +43,6 @@ player = entityPlayer:new{
 	doorTimer = 0
 }
 
-entityCharacter = entity:new{
-	width = 16,
-	height = 32,
-	dialog = {} -- what the character says
-}
 
 entityDoor = entity:new{
 	width = 16,
