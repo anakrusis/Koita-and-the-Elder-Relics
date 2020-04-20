@@ -39,8 +39,11 @@ player = entityPlayer:new{
 	magic = 5,
 	resistance = 5,
 	hp = 5,
+	gold = 0,
 	
-	doorTimer = 0
+	doorTimer = 0,
+	
+	inventory = {}
 }
 
 

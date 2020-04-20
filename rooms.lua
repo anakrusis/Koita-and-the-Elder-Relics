@@ -44,14 +44,33 @@ return {
 				destX = 64,
 				destY = 256
 			},
+			entityDoor:new{ -- to the shop
+				x=400,
+				y=368,
+				roomDestination = 10,
+				destX = 176,
+				destY = 128
+			},
+			entityDoor:new{ -- to the cave
+				x=544,
+				y=944,
+				roomDestination = 8,
+				destX = 80,
+				destY = 192
+			},
 			
 			characterFelix:new{
-				x=116,
+				x=170,
 				y=704
 			},
 			characterMaurice:new{
 				x=384,
 				y=560
+			},
+			
+			entityChest:new{
+				x=560,
+				y=880
 			}
 		},
 		music = "sound/decaying_town_ja.mp3"
@@ -101,11 +120,15 @@ return {
 				destX=512,
 				destY=704
 			},
+			characterDoctor:new{
+				x=128,
+				y=80
+			}
 		},
 	},
 	
 	{
-		name = "elevator",
+		name = "elevator", -- 7
 		entities = {
 			entityDoor:new{
 				
@@ -114,22 +137,60 @@ return {
 	},
 	
 	{
-		name = "cave",
+		name = "cave", -- 8
 		entities = {
+			entityDoor:new{
+				x=80,
+				y=192,
+				roomDestination=3,
+				destX=544,
+				destY=944
+			},
+			entityDoor:new{
+				x=400,
+				y=176,
+				roomDestination=9,
+				destX=224,
+				destY=112
+			},
+			entityChest:new{
+				x=256,
+				y=64
+			},
+			entityChest:new{
+				x=384,
+				y=368
+			}
 		}
 	},
 	
 	{
 		name = "cave2",
 		entities = { 
-		
+			entityDoor:new{
+				x=224,
+				y=112,
+				roomDestination=8,
+				destX=400,
+				destY=176
+			}
 		}
 	},
 	
 	{
-		name = "shop",
+		name = "shop", -- 10
 		entities = {
-			
+			entityDoor:new{ -- to town
+				x=176,
+				y=128,
+				roomDestination=3,
+				destX=400,
+				destY=368
+			},
+			characterShopOwner:new{
+				x=128,
+				y=128
+			}
 		}
 	}
 }

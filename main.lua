@@ -21,6 +21,7 @@ function love.load()
 	numberOfOptions = 3
 	optionText = {}
 	optionOffsets = {}
+	inventorySlot = 1
 	
 	currentText = ""
 	currentTextBuffer = ""
@@ -31,7 +32,7 @@ function love.load()
 	convoDone = false
 
 	TILESIZE = 16
-	SFX_VOLUME = 0.6
+	SFX_VOLUME = 1
 	
 	world = bump.newWorld(16)
 
@@ -45,12 +46,17 @@ function love.load()
 	"room/clinic",
 	"room/elevator",
 	"room/cave",
-	"room/cave2"}
+	"room/cave2",
+	"room/shop"}
 	
 	sfx_jump = love.audio.newSource("sound/jump.mp3", "static")
 	sfx_jump.setVolume(sfx_jump, SFX_VOLUME)
 	sfx_textblip = love.audio.newSource("sound/textblip.mp3", "static")
 	sfx_textblip.setVolume(sfx_textblip, SFX_VOLUME)
+	sfx_itemget = love.audio.newSource("sound/itemget.mp3", "static")
+	sfx_itemget.setVolume(sfx_itemget, SFX_VOLUME)
+	
+	starfield = love.graphics.newImage("room/starfield.png")
 	
 	worldTick = 0
 	gravity = 0.8
@@ -116,7 +122,7 @@ function love.update(dt)
 				end
 			end
 		else
-			player.xvel = player.xvel / 1.01 -- Friction/deceleration
+			player.xvel = player.xvel / 1.05 -- Friction/deceleration
 		end
 	end
 	
@@ -151,10 +157,11 @@ function love.update(dt)
 	playerTileX2 = math.ceil(player.x / TILESIZE) -- update tile pos
 	playerTileY2 = math.ceil(player.y / TILESIZE)
 	
-    if (worldTick % 8 == 0) then
-		playerAnimFrame = playerAnimFrame + 1
-		if playerAnimFrame > 4 then
-			playerAnimFrame = 1
+    if (worldTick % 8 == 0) then -- Update animation
+		playerAnimFrame = 1+(playerAnimFrame)%4
+		
+		for i, e in ipairs(room.entities) do
+			e.currentAnimFrame = 1+(e.currentAnimFrame % #e.animFrames)
 		end
 	end
 	
@@ -172,12 +179,55 @@ function love.update(dt)
 					
 					if currentEntityTalking.name == "Lowell" then
 						currentEntityTalking.starts[1] = 2
-					end
-					
-					if currentEntityTalking.name == "Felix" then
+						
+					elseif currentEntityTalking.name == "Felix" then
 						currentEntityTalking.starts = {11,12,13}
+						
+						if (currentTextIndex == 5) then -- Felix gives you gold
+							player.gold = player.gold + 200
+							sfx_itemget.play(sfx_itemget)
+						end
+						
+					elseif currentEntityTalking.name == "Tanya" then
+						if (currentTextIndex == 19) then
+							table.insert(player.inventory, "Staff of Wind")
+							currentEntityTalking.dialog[6] = "Anyways, why'd you stop by?$q245",
+							sfx_itemget.play(sfx_itemget)
+						end
+						
+					elseif currentEntityTalking.name == "Charles" then -- Simple shop code
+						if (currentTextIndex == 13) then
+							if (player.gold >= 50) then
+								table.insert(player.inventory, "Hot Cheaters")
+								player.gold = player.gold - 50
+								sfx_itemget.play(sfx_itemget)
+							else
+								currentTextIndex = 15
+								convoDone = false
+							end
+						elseif (currentTextIndex == 15) then
+							if (player.gold >= 420) then
+								table.insert(player.inventory, "Box of Cigars")
+								player.gold = player.gold - 420
+								sfx_itemget.play(sfx_itemget)
+							else
+								currentTextIndex = 15
+								convoDone = false
+							end
+						end
+						
+					elseif currentEntityTalking.name == "Chest" then
+						if (currentTextIndex == 4) then
+							table.insert(player.inventory, "Cheezy Burger")
+							sfx_itemget.play(sfx_itemget)
+						else
+							player.gold = player.gold + currentEntityTalking.drops[currentTextIndex]
+						end
+						if currentEntityTalking.drops[currentTextIndex] > 0 then
+							sfx_itemget.play(sfx_itemget)
+						end
+						currentEntityTalking.starts = {5}
 					end
-					
 					
 				elseif 	(string.sub(currentText, currentCharIndex+1, currentCharIndex+1) == "q") then -- Control code $q
 				
@@ -211,6 +261,17 @@ function love.update(dt)
 end
 
 function love.keypressed(key)
+	
+	if key == "c" or key == "enter" then
+		if not paused and not textMode then
+			paused = true
+			statScreen = true
+		
+		else
+			statScreen = false
+			paused = false
+		end
+	end
 
 	if dialogMenuMode then
 		if key == "down" then
@@ -223,8 +284,19 @@ function love.keypressed(key)
 		end
 	end
 
+	if statScreen then
+		if key == "down" then
+			inventorySlot = math.min(inventorySlot+1, #player.inventory)
+			sfx_textblip.play(sfx_textblip)
+		end
+		if key == "up" then
+			inventorySlot = math.max(1, inventorySlot-1)
+			sfx_textblip.play(sfx_textblip)
+		end
+	end
+
 	if key == "up" then
-		if not textMode then
+		if not textMode and not paused then
 			for i, e in ipairs(room.entities) do
 				if CheckCollision(player.x,player.y,player.width,player.height, e.x, e.y, e.width, e.height) then
 					if (e.roomDestination ~= nil) then
@@ -247,7 +319,7 @@ function love.keypressed(key)
 	
 	if key == "z" then
 	
-		if not textMode then
+		if not textMode and not paused then
 			for i, e in ipairs(room.entities) do
 				if CheckCollision(player.x,player.y,player.width,player.height, e.x, e.y, e.width, e.height) then
 					if (e.dialog ~= nil) then
