@@ -13,9 +13,12 @@ function love.load()
 	love.window.setTitle("Koita and the Elder Relics")
 	love.graphics.setFont(font)
 	
-	paused = false
+	paused = true
 	statScreen = false
 	textMode = false
+	titleScreen = true
+	prologue = false
+	
 	dialogMenuMode = false
 	menuOption = 1
 	numberOfOptions = 3
@@ -30,6 +33,16 @@ function love.load()
 	currentEntityTalking = nil
 	stringDone = false
 	convoDone = false
+	
+	fadeInBlack = false
+	fadeOutBlack = false
+	fadeInWhite = false
+	fadeOutWhite = false
+	blackOverlayTimer = 0
+	whiteOverlayTimer = 0
+	fishFallTimer = -300
+	
+	relicCount = 0
 
 	TILESIZE = 16
 	SFX_VOLUME = 1
@@ -47,16 +60,30 @@ function love.load()
 	"room/elevator",
 	"room/cave",
 	"room/cave2",
-	"room/shop"}
+	"room/shop",
+	"room/town hall",
+	"room/museum",
+	"room/test_room"}
 	
 	sfx_jump = love.audio.newSource("sound/jump.mp3", "static")
-	sfx_jump.setVolume(sfx_jump, SFX_VOLUME)
 	sfx_textblip = love.audio.newSource("sound/textblip.mp3", "static")
-	sfx_textblip.setVolume(sfx_textblip, SFX_VOLUME)
 	sfx_itemget = love.audio.newSource("sound/itemget.mp3", "static")
-	sfx_itemget.setVolume(sfx_itemget, SFX_VOLUME)
+	sfx_itemscroll = love.audio.newSource("sound/item_scroll.wav","static")
+	sfx_itemselect = love.audio.newSource("sound/item_select.wav","static")
+	npc1loop = love.audio.newSource("sound/npc_1_loop.wav","static")
+	npc2loop = love.audio.newSource("sound/npc_2_loop.wav","static")
+	npc3loop = love.audio.newSource("sound/npc_3_loop.wav","static")
+	walk_loop = love.audio.newSource("sound/walk_loop.wav", "static")
+	
+	fish_music = love.audio.newSource("sound/fish.mp3", "stream")
 	
 	starfield = love.graphics.newImage("room/starfield.png")
+	prologue1 = love.graphics.newImage("sprite/1.png")
+	prologue2 = love.graphics.newImage("sprite/2.png")
+	prologue3 = love.graphics.newImage("sprite/3.png")
+	prologue4 = love.graphics.newImage("sprite/5.png")
+	prologue5 = love.graphics.newImage("sprite/6.png")
+	title = love.graphics.newImage("sprite/title.png")
 	
 	worldTick = 0
 	gravity = 0.8
@@ -67,14 +94,17 @@ function love.load()
 	playerTileY = 0
 	
 	player_idle_frames = {}
+	player_yellow_frames = {}
 	playerAnimFrame = 1
 	for i = 1, 4 do
 		player_idle_frames[i] = love.graphics.newImage("sprite/player_idle" .. i .. ".png")
+		player_yellow_frames[i] = love.graphics.newImage("sprite/player_yellow" .. i .. ".png")
 	end
 
 	cam_zoom = 3
+
+	init_room(13)
 	
-	init_room(3)
 end
 
 
@@ -83,6 +113,77 @@ function love.update(dt)
 	
 	worldTick = worldTick + 1
 	map:update(dt) -- update map and everything and yeah
+	
+	if (fadeOutBlack) then
+		blackOverlayTimer = math.min(blackOverlayTimer + 1, 200)
+	end
+	if (fadeInBlack) then
+		blackOverlayTimer = math.max(blackOverlayTimer - 1, 0)
+	end
+	if (blackOverlayTimer == 0) then
+		fadeInBlack = false
+	end
+	
+	if (blackOverlayTimer == 200) and endingScene1 then
+		startConvo(characterMayor)
+		endingScene1 = false
+		characterMayor.x = 400
+		characterMayor.y = 64
+		player.x = 420
+		player.y = 140
+		player.boundingBox.x = 420
+		player.boundingBox.y = 140
+		player.xvel = 0
+		player.yvel = 0
+		
+		doc = characterDoctor:new{
+			x=496,y=160
+		}
+		low = characterLowell:new{
+			x=272,y=144
+		}
+		liz = characterTanya:new{
+			x=208,y=176
+		}
+		
+		table.insert(room.entities,doc)
+		table.insert(room.entities,low)
+		table.insert(room.entities,liz)
+		
+		room_music.stop(room_music)
+	
+	elseif (blackOverlayTimer == 0) and endingScene2 then
+		endingScene2 = false
+		fadeInBlack = false
+		fadeOutBlack = false
+		endingScene3 = true
+		fish_music.play(fish_music)
+		
+	end
+	if (endingScene3) then
+		characterFish.y = math.min(characterFish.y + 5, 160)
+		
+		if characterFish.y == 160 then
+			endingScene3 = false
+			characterMayor.starts = {22}
+			startConvo(characterMayor)
+			characterMayor.starts = {23}
+			characterDoctor.starts = {15}
+			characterTanya.starts = {20}
+			characterLowell.starts = {18}
+			
+			endingScene4 = true
+		end
+	end
+	
+	if (prologue) then
+		startConvo(characterIntro)
+		blackOverlayTimer = 100
+		fadeOutBlack = true
+		paused = true
+		prologue = false
+		prologueScreen = true
+	end
 	
 	cam_x = player.x -- update camera
 	cam_y = player.y
@@ -103,6 +204,7 @@ function love.update(dt)
 				
 				if player.grounded then -- Player moves slower horizontally in midair than on the ground
 					player.xvel = player.xvel - 0.3
+					--walk_loop.play(walk_loop)
 				else
 					player.xvel = player.xvel - 0.1
 				end
@@ -117,6 +219,7 @@ function love.update(dt)
 				
 				if player.grounded then
 					player.xvel = player.xvel + 0.3
+					--walk_loop.play(walk_loop)
 				else
 					player.xvel = player.xvel + 0.1
 				end
@@ -135,19 +238,18 @@ function love.update(dt)
 		player.yvel = ((player.yvel - gravity) / 1.1) + gravity -- Gravity pulls you down and yeah
     end
 	
-	if love.keyboard.isDown("down") then -- Does nothing for now
-	end
-	
 	if not paused and not textMode then -- Updates player position based on collision, or tries to at least
 		player.boundingBox.x, player.boundingBox.y, cols, lenth = world:move(player.boundingBox, player.x + player.xvel, player.y + player.yvel)	
+		
+		if math.abs(player.yvel) > gravity * (0.5) and lenth > 0 then -- Player is grounded if colliding and yvel is close to the gravity coefficient
+			player.grounded = true
+			player.yvel = 0
+		else
+			player.grounded = false
+		end
 	end
 	
-	if math.abs(player.yvel) > gravity * (0.5) and lenth > 0 then -- Player is grounded if colliding and yvel is close to the gravity coefficient
-		player.grounded = true
-		player.yvel = 0
-	else
-		player.grounded = false
-	end
+
 	
 	player.x = player.boundingBox.x
 	player.y = player.boundingBox.y
@@ -165,6 +267,33 @@ function love.update(dt)
 		end
 	end
 	
+	if (worldTick % 32 >= 16) then
+		characterMonk.y = characterMonk.y + 0.25
+		characterMayor.y = characterMayor.y + 0.25
+	else
+		characterMonk.y = characterMonk.y - 0.25
+		characterMayor.y = characterMayor.y - 0.25
+	end
+	
+	relicCount = 0
+	for i=1, #player.inventory do
+		if player.inventory[i] == "Blazing Blade" or
+			player.inventory[i] == "Tidal Shield" or
+			player.inventory[i] == "Staff of Wind" or
+			player.inventory[i] == "Mask of Truth" or
+			player.inventory[i] == "Earthen Gem" then
+			
+			relicCount = relicCount + 1
+		end
+	end
+	if relicCount == 4 then
+		characterDoctor.starts = {11}
+	end
+	
+	if relicCount == 5 and not endingScene1 and not endingScene2 and not endingScene3 and not endingScene4 then
+		characterMayor.starts = {20}
+	end
+	
 	if (textMode) then
 		if not stringDone then
 			if (string.sub(currentText, currentCharIndex, currentCharIndex) == "$") then
@@ -178,7 +307,15 @@ function love.update(dt)
 					-- Hardwritten code for characters that say something different their first time versus subsequent times
 					
 					if currentEntityTalking.name == "Lowell" then
-						currentEntityTalking.starts[1] = 2
+						if currentEntityTalking.starts[1] == 1 then
+							currentEntityTalking.starts[1] = 2
+						end
+						
+						if (currentTextIndex == 15) then
+							currentEntityTalking.starts = {16,17}
+							table.insert(player.inventory, "Tidal Shield")
+							sfx_itemget.play(sfx_itemget)
+						end
 						
 					elseif currentEntityTalking.name == "Felix" then
 						currentEntityTalking.starts = {11,12,13}
@@ -188,11 +325,36 @@ function love.update(dt)
 							sfx_itemget.play(sfx_itemget)
 						end
 						
+					elseif currentEntityTalking.name == "Dr. Tennant" then
+						if (currentTextIndex == 12) then
+							table.insert(player.inventory, "Earthen Gem")
+							sfx_itemget.play(sfx_itemget)
+							characterDoctor.starts = {13}
+						end
+						
 					elseif currentEntityTalking.name == "Tanya" then
 						if (currentTextIndex == 19) then
 							table.insert(player.inventory, "Staff of Wind")
 							currentEntityTalking.dialog[6] = "Anyways, why'd you stop by?$q245",
 							sfx_itemget.play(sfx_itemget)
+						end
+					
+					elseif currentEntityTalking.name == "The Lonelious Monk" then
+						if (currentTextIndex == 8) then
+							table.insert(player.inventory, "Mask of Truth")
+							currentEntityTalking.starts = {9,10},
+							sfx_itemget.play(sfx_itemget)
+						end
+						
+					elseif currentEntityTalking.name == "The Mayor" then
+						if (currentTextIndex == 16) then
+							table.insert(player.inventory, "Blazing Blade")
+							currentEntityTalking.starts = {18,19},
+							sfx_itemget.play(sfx_itemget)
+						end
+						
+						if (currentTextIndex == 20) then -- when you have all 5 relics this initiates the ending
+							
 						end
 						
 					elseif currentEntityTalking.name == "Charles" then -- Simple shop code
@@ -210,6 +372,7 @@ function love.update(dt)
 								table.insert(player.inventory, "Box of Cigars")
 								player.gold = player.gold - 420
 								sfx_itemget.play(sfx_itemget)
+								characterLowell.starts = {9}
 							else
 								currentTextIndex = 15
 								convoDone = false
@@ -243,9 +406,25 @@ function love.update(dt)
 					end
 				end
 				
-			elseif currentCharIndex > string.len(currentText) then
+			elseif currentCharIndex > string.len(currentText) then -- last character in buffer, no control code
 			
-				-- last character in buffer, no control code
+				if currentEntityTalking.name == "Lowell" then
+					if (currentTextIndex == 13) then
+							
+						-- replaces the ccigar box with a bunch of cigars
+						for i = 1, #player.inventory do
+							if player.inventory[i] == "Box of Cigars" then
+								table.remove(player.inventory, i)
+							end
+						end
+						
+						for i = 1, 12 do
+							table.insert(player.inventory, "Cigar")
+						end
+						
+						sfx_itemget.play(sfx_itemget)
+					end
+				end
 			
 				stringDone = true
 			else
@@ -261,6 +440,14 @@ function love.update(dt)
 end
 
 function love.keypressed(key)
+
+	if titleScreen then
+		if key == "z" or key == "enter" or key == "x" or key == "space" then
+			titleScreen = false
+			prologue = true
+			init_room(1)
+		end
+	end
 	
 	if key == "c" or key == "enter" then
 		if not paused and not textMode then
@@ -276,22 +463,22 @@ function love.keypressed(key)
 	if dialogMenuMode then
 		if key == "down" then
 			menuOption = math.min(menuOption+1, numberOfOptions)
-			sfx_textblip.play(sfx_textblip)
+			sfx_itemscroll.play(sfx_itemscroll)
 		end
 		if key == "up" then
 			menuOption = math.max(1, menuOption-1)
-			sfx_textblip.play(sfx_textblip)
+			sfx_itemscroll.play(sfx_itemscroll)
 		end
 	end
 
 	if statScreen then
 		if key == "down" then
 			inventorySlot = math.min(inventorySlot+1, #player.inventory)
-			sfx_textblip.play(sfx_textblip)
+			sfx_itemscroll.play(sfx_itemscroll)
 		end
 		if key == "up" then
 			inventorySlot = math.max(1, inventorySlot-1)
-			sfx_textblip.play(sfx_textblip)
+			sfx_itemscroll.play(sfx_itemscroll)
 		end
 	end
 
@@ -323,18 +510,7 @@ function love.keypressed(key)
 			for i, e in ipairs(room.entities) do
 				if CheckCollision(player.x,player.y,player.width,player.height, e.x, e.y, e.width, e.height) then
 					if (e.dialog ~= nil) then
-						textMode = true
-						
-						randomIndex = love.math.random(#e.starts)
-						startIndex = e.starts[randomIndex]
-						currentText = e.dialog[startIndex]
-						currentEntityTalking = e
-						
-						currentTextIndex = startIndex
-						currentCharIndex = 1
-						currentTextBuffer = ""
-						stringDone = false
-						convoDone = false
+						startConvo(e)
 					end
 				end
 			end
@@ -349,9 +525,37 @@ function love.keypressed(key)
 				currentText = currentEntityTalking.dialog[currentTextIndex]
 				stringDone = false
 				dialogMenuMode = false
+				sfx_itemselect.play(sfx_itemselect)
 				
 			elseif convoDone then
 				textMode = false
+				
+				if currentEntityTalking.name == "" and prologueScreen then
+					
+						prologueScreen = false
+						paused = false
+						fadeInBlack = true
+						fadeOutBlack = false
+						init_room(3)
+					
+				elseif (currentEntityTalking.name == "The Mayor") then
+					
+					if currentTextIndex == 20 then
+						fadeOutBlack = true
+						endingScene1 = true
+						paused = true
+						characterMayor.starts = {21}
+						
+					elseif currentTextIndex == 21 then
+						fadeInBlack = true
+						fadeOutBlack = false
+						endingScene2 = true
+						
+					elseif currentTextIndex == 22 then
+						paused = false
+					end
+
+				end
 				
 			elseif stringDone then
 				currentCharIndex = 1
@@ -362,6 +566,21 @@ function love.keypressed(key)
 			end
 		end
 	end
+end
+
+function startConvo(e)
+	textMode = true
+
+	randomIndex = love.math.random(#e.starts)
+	startIndex = e.starts[randomIndex]
+	currentText = e.dialog[startIndex]
+	currentEntityTalking = e
+
+	currentTextIndex = startIndex
+	currentCharIndex = 1
+	currentTextBuffer = ""
+	stringDone = false
+	convoDone = false
 end
 
 function love.draw()

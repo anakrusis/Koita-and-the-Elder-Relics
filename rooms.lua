@@ -3,7 +3,9 @@
 return {
 	{
 		name="test_room",
-		entities = {}
+		entities = {},
+		yellow = false,
+		music = "sound/Prolog.ogg"
 	},
 	
 	{
@@ -17,7 +19,8 @@ return {
 				destY = 704
 			}
 		},
-		music = "sound/shit.mp3"
+		music = "sound/shit.mp3",
+		yellow = false
 	},
 	
 	{
@@ -58,6 +61,20 @@ return {
 				destX = 80,
 				destY = 192
 			},
+			entityDoor:new{ -- to city hall 11
+				x=160,
+				y=480,
+				roomDestination=11,
+				destX=176,
+				destY=208
+			},
+			entityDoor:new{ -- to museum 12
+				x=336,
+				y=560,
+				roomDestination=12,
+				destX=192,
+				destY=208
+			},
 			
 			characterFelix:new{
 				x=170,
@@ -67,13 +84,18 @@ return {
 				x=384,
 				y=560
 			},
-			
+			characterMayor:new{
+			},
+			characterFish:new{
+			},
+
 			entityChest:new{
 				x=560,
 				y=880
 			}
 		},
-		music = "sound/decaying_town_ja.mp3"
+		music = "sound/Decaying_Town.ogg",
+		yellow = false
 	},
 	
 	{
@@ -87,10 +109,10 @@ return {
 				destY=704
 			},
 			characterLowell:new{
-				x=96,
-				y=128
 			}
-		}
+		},
+		music = "sound/Bhar.ogg",
+		yellow = true
 	},
 	
 	{
@@ -104,10 +126,13 @@ return {
 				destY=704
 			},
 			characterTanya:new{
-				x=80,
-				y=32
+			},
+			entityChest:new{
+				x=224,
+				y=144
 			}
-		}	
+		},
+		yellow = true
 	},
 	
 	{
@@ -121,10 +146,10 @@ return {
 				destY=704
 			},
 			characterDoctor:new{
-				x=128,
-				y=80
 			}
 		},
+		music = "sound/Clinic.ogg",
+		yellow = false
 	},
 	
 	{
@@ -133,7 +158,8 @@ return {
 			entityDoor:new{
 				
 			}
-		}
+		},
+		yellow = false
 	},
 	
 	{
@@ -161,7 +187,9 @@ return {
 				x=384,
 				y=368
 			}
-		}
+		},
+		music = "sound/Caverns2.ogg",
+		yellow = false
 	},
 	
 	{
@@ -173,8 +201,13 @@ return {
 				roomDestination=8,
 				destX=400,
 				destY=176
+			},
+			characterMonk:new{
+
 			}
-		}
+		},
+		music = "sound/Caverns2.ogg",
+		yellow = false
 	},
 	
 	{
@@ -191,6 +224,48 @@ return {
 				x=128,
 				y=128
 			}
-		}
+		},
+		music = "sound/Shop.ogg",
+		yellow = true
+	},
+	
+	{
+		name = "cityhall", -- 11
+		entities = { 
+			entityDoor:new{
+				x=176,
+				y=208,
+				roomDestination=3,
+				destX=160,
+				destY=480
+			},
+			entityChest:new{
+				x=64,
+				y=224
+			}
+		},
+		yellow = true
+	},
+	
+	{
+		name = "museum", -- 12
+		entities = {
+			entityDoor:new{
+				x=192,
+				y=208,
+				roomDestination=3,
+				destX=336,
+				destY=560
+			}
+		},
+		yellow = true
+	},
+	
+	{
+		name = "title", -- 13
+		entities = {
+		
+		},
+		music = "sound/Main_Theme.ogg"
 	}
 }

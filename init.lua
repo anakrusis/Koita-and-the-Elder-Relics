@@ -15,6 +15,7 @@ function init_room(id)
 		room_music = love.audio.newSource(room.music, "stream")
 		room_music.setLooping(room_music, true)
 		room_music.play(room_music)
+		room_music.setVolume(room_music, 0.7)
 	end
 
 	tileHitboxes = {}

@@ -27,6 +27,7 @@ entityPlayer = entity:new()
 player = entityPlayer:new{
 	x = 32,
 	y = 700,
+	
 	boundingBox = {x=32,y=700,w=15,h=32},
 	width = 16,
 	height = 32,
@@ -44,6 +45,7 @@ player = entityPlayer:new{
 	doorTimer = 0,
 	
 	inventory = {}
+	--inventory = {"Blazing Blade","Staff of Wind","Tidal Shield","Mask of Truth","Earthen Gem"}
 }
 
 
