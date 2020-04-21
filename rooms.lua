@@ -75,6 +75,10 @@ return {
 				destX=192,
 				destY=208
 			},
+			entityChest:new{
+				x=26*16,
+				y=45*16
+			},
 			
 			characterFelix:new{
 				x=170,
@@ -242,7 +246,11 @@ return {
 			entityChest:new{
 				x=64,
 				y=224
-			}
+			},
+			entityChest:new{
+				x=18*16,
+				y=14*16
+			},
 		},
 		yellow = true
 	},
@@ -256,6 +264,14 @@ return {
 				roomDestination=3,
 				destX=336,
 				destY=560
+			},
+			entityChest:new{
+				x=18*16,
+				y=12*16
+			},
+			entityChest:new{
+				x=6*16,
+				y=12*16
 			}
 		},
 		yellow = true

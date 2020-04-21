@@ -85,6 +85,11 @@ function love.load()
 	prologue5 = love.graphics.newImage("sprite/6.png")
 	title = love.graphics.newImage("sprite/title.png")
 	
+	endingScene1 = false
+	endingScene2 = false
+	endingScene3 = false
+	endingScene4 = false
+	
 	worldTick = 0
 	gravity = 0.8
 	
@@ -125,10 +130,8 @@ function love.update(dt)
 	end
 	
 	if (blackOverlayTimer == 200) and endingScene1 then
-		startConvo(characterMayor)
+		startConvo(characterMayorCutscene)
 		endingScene1 = false
-		characterMayor.x = 400
-		characterMayor.y = 64
 		player.x = 420
 		player.y = 140
 		player.boundingBox.x = 420
@@ -145,7 +148,11 @@ function love.update(dt)
 		liz = characterTanya:new{
 			x=208,y=176
 		}
+		cut = characterMayorCutscene:new{
+			x=400,y=64
+		}
 		
+		table.insert(room.entities,cut)
 		table.insert(room.entities,doc)
 		table.insert(room.entities,low)
 		table.insert(room.entities,liz)
@@ -165,7 +172,7 @@ function love.update(dt)
 		
 		if characterFish.y == 160 then
 			endingScene3 = false
-			characterMayor.starts = {22}
+			characterMayorCutscene.starts = {3}
 			startConvo(characterMayor)
 			characterMayor.starts = {23}
 			characterDoctor.starts = {15}
@@ -290,7 +297,7 @@ function love.update(dt)
 		characterDoctor.starts = {11}
 	end
 	
-	if relicCount == 5 and not endingScene1 and not endingScene2 and not endingScene3 and not endingScene4 then
+	if relicCount == 5 then
 		characterMayor.starts = {20}
 	end
 	
@@ -539,22 +546,20 @@ function love.keypressed(key)
 						init_room(3)
 					
 				elseif (currentEntityTalking.name == "The Mayor") then
-					
 					if currentTextIndex == 20 then
 						fadeOutBlack = true
 						endingScene1 = true
 						paused = true
-						characterMayor.starts = {21}
-						
-					elseif currentTextIndex == 21 then
+					end
+				elseif (currentEntityTalking.name == "Mayor") then
+					if currentTextIndex == 1 then
 						fadeInBlack = true
 						fadeOutBlack = false
 						endingScene2 = true
 						
-					elseif currentTextIndex == 22 then
+					elseif currentTextIndex == 2 then
 						paused = false
 					end
-
 				end
 				
 			elseif stringDone then
