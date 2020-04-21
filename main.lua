@@ -42,6 +42,11 @@ function love.load()
 	whiteOverlayTimer = 0
 	fishFallTimer = -300
 	
+	endingScene1 = false
+	endingScene2 = false
+	endingScene3 = false
+	endingScene4 = false
+	
 	relicCount = 0
 
 	TILESIZE = 16
@@ -85,13 +90,8 @@ function love.load()
 	prologue5 = love.graphics.newImage("sprite/6.png")
 	title = love.graphics.newImage("sprite/title.png")
 	
-	endingScene1 = false
-	endingScene2 = false
-	endingScene3 = false
-	endingScene4 = false
-	
 	worldTick = 0
-	gravity = 0.8
+	gravity = 1.6
 	
 	playerSpeed = 1.5
 
@@ -130,8 +130,10 @@ function love.update(dt)
 	end
 	
 	if (blackOverlayTimer == 200) and endingScene1 then
-		startConvo(characterMayorCutscene)
+		startConvo(characterMayor)
 		endingScene1 = false
+		characterMayor.x = 400
+		characterMayor.y = 64
 		player.x = 420
 		player.y = 140
 		player.boundingBox.x = 420
@@ -148,11 +150,7 @@ function love.update(dt)
 		liz = characterTanya:new{
 			x=208,y=176
 		}
-		cut = characterMayorCutscene:new{
-			x=400,y=64
-		}
 		
-		table.insert(room.entities,cut)
 		table.insert(room.entities,doc)
 		table.insert(room.entities,low)
 		table.insert(room.entities,liz)
@@ -172,7 +170,7 @@ function love.update(dt)
 		
 		if characterFish.y == 160 then
 			endingScene3 = false
-			characterMayorCutscene.starts = {3}
+			characterMayor.starts = {22}
 			startConvo(characterMayor)
 			characterMayor.starts = {23}
 			characterDoctor.starts = {15}
@@ -293,11 +291,12 @@ function love.update(dt)
 			relicCount = relicCount + 1
 		end
 	end
+	
 	if relicCount == 4 then
 		characterDoctor.starts = {11}
 	end
 	
-	if relicCount == 5 then
+	if relicCount == 5 and ((not endingScene1) and (not endingScene2) and (not endingScene3) and (not endingScene4)) then
 		characterMayor.starts = {20}
 	end
 	
@@ -337,6 +336,7 @@ function love.update(dt)
 							table.insert(player.inventory, "Earthen Gem")
 							sfx_itemget.play(sfx_itemget)
 							characterDoctor.starts = {13}
+							characterMayor.starts = {20}
 						end
 						
 					elseif currentEntityTalking.name == "Tanya" then
@@ -354,10 +354,13 @@ function love.update(dt)
 						end
 						
 					elseif currentEntityTalking.name == "The Mayor" then
-						if (currentTextIndex == 16) then
+						if (currentTextIndex == 17) then
 							table.insert(player.inventory, "Blazing Blade")
-							currentEntityTalking.starts = {18,19},
+							currentEntityTalking.starts = {18,19}
 							sfx_itemget.play(sfx_itemget)
+						end
+						if (relicCount == 5) and ((not endingScene1) and (not endingScene2) and (not endingScene3) and (not endingScene4)) then
+							currentEntityTalking.starts = {20}
 						end
 						
 						if (currentTextIndex == 20) then -- when you have all 5 relics this initiates the ending
@@ -546,20 +549,22 @@ function love.keypressed(key)
 						init_room(3)
 					
 				elseif (currentEntityTalking.name == "The Mayor") then
+					
 					if currentTextIndex == 20 then
 						fadeOutBlack = true
 						endingScene1 = true
 						paused = true
-					end
-				elseif (currentEntityTalking.name == "Mayor") then
-					if currentTextIndex == 1 then
+						characterMayor.starts = {21}
+						
+					elseif currentTextIndex == 21 then
 						fadeInBlack = true
 						fadeOutBlack = false
 						endingScene2 = true
 						
-					elseif currentTextIndex == 2 then
+					elseif currentTextIndex == 22 then
 						paused = false
 					end
+
 				end
 				
 			elseif stringDone then

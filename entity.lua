@@ -45,7 +45,7 @@ player = entityPlayer:new{
 	doorTimer = 0,
 	
 	inventory = {}
-	--inventory = {"Blazing Blade","Staff of Wind","Cigar","Tidal Shield","Mask of Truth","Earthen Gem"}
+	--inventory = {"Blazing Blade","Staff of Wind","Cigar","Tidal Shield","Mask of Truth"}
 }
 
 

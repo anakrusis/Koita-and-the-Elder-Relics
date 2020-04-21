@@ -266,12 +266,18 @@ characterMayor = entityCharacter:new{
 		"And lastly, the Blazing Blade, able to slice through even the thickest of thicks.",
 		"With these five relics, our ancestors were able to cleanse this land.... but there was a cost, a grave one.",
 		"You must already be on the path of obtaining the Relics. Allow me to help you on your quest.",
+		"Once you have obtained all five Relics, come talk to me again.",
 		"[You have obtained the Blazing Blade.]$e",
-		"Once you have obtained all five Relics, come talk to me again.$e",
+
 		"My heart is with you on your journey to gather the Relics.$e",
 		"I have hope that our town can once again prosper.$e",
 		-- 20 ending dialog
-		"I see that you've gathered the five Relics. Excellent work. Let us gather the townspeople at the fountain, in order to perform the Ritual.$e"
+		"I see that you've gathered the five Relics. Excellent work. Let us gather the townspeople at the fountain, in order to perform the Ritual.$e",
+		"Oh, gods above, hear our plea. Oh, divine spirits, answer our call. In this dire time of need, heed our cries and grant us the power to breathe new life into this town!$e",
+		"Behold, our new guardian!$e",
+		"At last, hope has returned to this town. My utmost gratitude to you for your work.",
+		"Thank you for playing this demo! If you would like to play more of this game, it probably won't ever be finished.",
+		"Regardless, send us your complaints at toasted.oregano@mailfence.com and let us know what you think!$e"
 	},
 	animFrames = {
 		love.graphics.newImage("sprite/eagle/1.png"),
