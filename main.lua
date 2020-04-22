@@ -46,6 +46,7 @@ function love.load()
 	endingScene2 = false
 	endingScene3 = false
 	endingScene4 = false
+	doinkus = false
 	
 	relicCount = 0
 
@@ -134,12 +135,26 @@ function love.update(dt)
 		endingScene1 = false
 		characterMayor.x = 400
 		characterMayor.y = 64
+
+		-- manual bounding box moving, because otherwise you get the glitch where the player spawns under the platform
+		
+		player.boundingBox.x, player.boundingBox.y, cols, lenth = world:move(player.boundingBox,4*16,28*16)	
+		player.boundingBox.x, player.boundingBox.y, cols, lenth = world:move(player.boundingBox,4*16,12*16)	
+		player.boundingBox.x, player.boundingBox.y, cols, lenth = world:move(player.boundingBox,11*16,7*16)
+		player.boundingBox.x, player.boundingBox.y, cols, lenth = world:move(player.boundingBox,20*16,3*16)	
+		player.boundingBox.x, player.boundingBox.y, cols, lenth = world:move(player.boundingBox,27*16,3*16)		
+		player.boundingBox.x, player.boundingBox.y, cols, lenth = world:move(player.boundingBox,420,140)
 		player.x = 420
-		player.y = 140
-		player.boundingBox.x = 420
-		player.boundingBox.y = 140
+		player.y = 140		
 		player.xvel = 0
 		player.yvel = 0
+		
+		for i=1, #room.entities do -- deleting all doors to stop a glitch where music plays twice
+			e = room.entities[i]
+			if e.destX ~= nil then
+				e = nil
+			end
+		end
 		
 		doc = characterDoctor:new{
 			x=496,y=160
@@ -173,6 +188,7 @@ function love.update(dt)
 			characterMayor.starts = {22}
 			startConvo(characterMayor)
 			characterMayor.starts = {23}
+			currentEntityTalking.starts = {23}
 			characterDoctor.starts = {15}
 			characterTanya.starts = {20}
 			characterLowell.starts = {18}
@@ -296,10 +312,6 @@ function love.update(dt)
 		characterDoctor.starts = {11}
 	end
 	
-	if relicCount == 5 and ((not endingScene1) and (not endingScene2) and (not endingScene3) and (not endingScene4)) then
-		characterMayor.starts = {20}
-	end
-	
 	if (textMode) then
 		if not stringDone then
 			if (string.sub(currentText, currentCharIndex, currentCharIndex) == "$") then
@@ -359,12 +371,17 @@ function love.update(dt)
 							currentEntityTalking.starts = {18,19}
 							sfx_itemget.play(sfx_itemget)
 						end
-						if (relicCount == 5) and ((not endingScene1) and (not endingScene2) and (not endingScene3) and (not endingScene4)) then
+						if (relicCount == 5) and ((not endingScene1) and (not endingScene2) and (not endingScene3) and (not endingScene4)) and not doinkus then
 							currentEntityTalking.starts = {20}
+							doinkus = true
 						end
 						
 						if (currentTextIndex == 20) then -- when you have all 5 relics this initiates the ending
 							
+						end
+						if currentTextIndex == 25 then
+							--paused = false
+							currentEntityTalking.starts = {23}
 						end
 						
 					elseif currentEntityTalking.name == "Charles" then -- Simple shop code
@@ -496,7 +513,7 @@ function love.keypressed(key)
 		if not textMode and not paused then
 			for i, e in ipairs(room.entities) do
 				if CheckCollision(player.x,player.y,player.width,player.height, e.x, e.y, e.width, e.height) then
-					if (e.roomDestination ~= nil) then
+					if (e.roomDestination ~= nil) and (not endingScene4) then -- cannot go to other rooms in the ending
 
 						player.boundingBox.x = e.destX -- player bounding box has to be initialized before
 						player.boundingBox.y = e.destY
@@ -560,9 +577,12 @@ function love.keypressed(key)
 						fadeInBlack = true
 						fadeOutBlack = false
 						endingScene2 = true
+						player.inventory = {}
 						
-					elseif currentTextIndex == 22 then
+					elseif currentTextIndex == 25 then
 						paused = false
+						currentEntityTalking.starts = {23}
+						characterMayor.starts = {23}
 					end
 
 				end
@@ -579,6 +599,11 @@ function love.keypressed(key)
 end
 
 function startConvo(e)
+
+	if (endingScene4) and e.name == "The Mayor" then -- manually setting this one as a quickfix
+		e.starts = {23}
+	end
+
 	textMode = true
 
 	randomIndex = love.math.random(#e.starts)

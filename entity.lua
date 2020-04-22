@@ -50,6 +50,7 @@ player = entityPlayer:new{
 
 
 entityDoor = entity:new{
+	name = "Door", -- added this for the door erasing glitch fix
 	width = 16,
 	height = 32,
 	grounded = true,
